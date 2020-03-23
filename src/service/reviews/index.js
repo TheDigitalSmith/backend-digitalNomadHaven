@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 
 //Mongoose Schema for Reviews
-const reviewDb = require ('../../model/review/index');
+const {reviewCollection} = require ('../../model/review/index');
 
 //Mongoose Schema for users
 
@@ -11,7 +11,7 @@ const reviewDb = require ('../../model/review/index');
 //To get ALL reviews
 router.get('/', async(req,res)=>{
     try{
-        const reviews = await reviewDb.find({});
+        const reviews = await reviewCollection.find({});
         if (reviews){
             res.status(200).json(reviews);
         }else{
@@ -27,7 +27,7 @@ router.get('/', async(req,res)=>{
 router.get('/:userId', async(req,res)=>{
     try{
         console.log('fetching all reviews from a user');
-        const reviews = await reviewDb.find({userId: req.params.userId});
+        const reviews = await reviewCollection.find({userId: req.params.userId});
         if (reviews){
             res.status(200).json(reviews);
         } else {
@@ -43,7 +43,7 @@ router.get('/:userId', async(req,res)=>{
 router.get('/:placeId', async (req,res)=>{
     try{
         console.log('Fetching reviews from user');
-        const reviews = await reviewDb.find({placeId: req.params.placeId});
+        const reviews = await reviewCollection.find({placeId: req.params.placeId});
         res.status(200).json(reviews);
     }catch (err){
         console.log(err);
@@ -56,7 +56,7 @@ router.post('/:placeId', passport.authenticate('jwt'), async(req,res)=>{
     try{
         console.log('Sending Review');
         const incomingData = {...req.body, userId: req.user._id, placeId: req.params.placeId};
-        const review = await reviewDb.create(incomingData);
+        const review = await reviewCollection.create(incomingData);
         res.status(200).json(review);
     }catch(err){
         console.log(err);
@@ -68,14 +68,14 @@ router.post('/:placeId', passport.authenticate('jwt'), async(req,res)=>{
 router.put('/:reviewId', passport.authenticate('jwt'), async(req,res)=>{
     try{
         const userId = req.user._id.toString();
-        const reviewData = await reviewDb.findById(req.params.reviewId);
+        const reviewData = await reviewCollection.findById(req.params.reviewId);
         const incomingData = req.body;
         if (reviewData.userId === userId){
             console.log('updating review');
             for(props in incomingData){
                 reviewData[props] = incomingData[props]
             }
-            const update = await reviewDb.findByIdAndUpdate(req.params.reviewId, reviewData, {new:true});
+            const update = await reviewCollection.findByIdAndUpdate(req.params.reviewId, reviewData, {new:true});
             if (update){
                 res.status(200).json(update);
             } else {
@@ -95,9 +95,9 @@ router.delete('/:reviewId',passport.authenticate('jwt'), async(req,res)=>{
     try{
         console.log('Removing a review from a place');
         const userId = req.user._id.toString();
-        const review = await reviewDb.findById(req.params.reviewId);
+        const review = await reviewCollection.findById(req.params.reviewId);
         if (review.userId === userId){
-        const removed = await reviewDb.findByIdAndRemove(req.params.reviewId);
+        const removed = await reviewCollection.findByIdAndRemove(req.params.reviewId);
         if (removed){
             res.status(200).json('Removed');
         } else {
