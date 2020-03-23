@@ -2,9 +2,11 @@ const express = require ('express');
 const app = express();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const passport = require('passport');
 const listEndPoints = require ('express-list-endpoints');
 
 const reviewService = require ('./src/service/reviews/index');
+const logoutService = require ('./src/service/logout/index');
 
 const port = process.env.PORT || 6543;
 dotenv.config();
@@ -21,6 +23,8 @@ app.listen( port, ()=>{
 })
 
 app.use(express.json());
+app.use(passport.initialize());
 app.use('/review', reviewService);
+app.use('/logout', logoutService);
 
 console.log(listEndPoints(app));
