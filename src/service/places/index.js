@@ -29,16 +29,17 @@ try{
 }
 })
 
-router.put('/:placeId',passport.authenticate('jwt'), async(req,res)=>{
+router.patch('/:placeId',passport.authenticate('jwt'), async(req,res)=>{
 try{
     const placeData = await placeCollection.findById(req.params.placeId);
     const userId = req.user._id.toString();
     const incomingData = req.body;
     if(placeData.posterId === req.user._id){
-        for(props in incomingData){
-            placeData[props] = incomingData[props]
-        }
-    const updatedPlace = await placeCollection.findByIdAndUpdate(req.params.placeId, placeData, {new:true});
+        //ignore these codes
+        // for(props in incomingData){
+        //     placeData[props] = incomingData[props]
+        // }
+    const updatedPlace = await placeCollection.findByIdAndUpdate(req.params.placeId, incomingData, {new:true});
     res.status(200).json(updatedPlace);
     }else{
         res.status(400).json('not authorised');
